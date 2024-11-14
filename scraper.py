@@ -8,8 +8,8 @@ os.makedirs('text', exist_ok=True)
 
 urls = {
     "phenomena": 'https://www.phenomena-experience.com/programacion-peliculas/todas.html',
-    "malda": "https://www.cinemamalda.com/",
-    "verdi": "https://barcelona.cines-verdi.com/cartelera",
+    "malda": "https://www.cinemamalda.com/cartelera-dia-dia/",
+    # "verdi": "https://barcelona.cines-verdi.com/cartelera", # not very accessible
     "filmoteca": "https://www.filmoteca.cat/web/ca/view-agenda-setmanal",
 }
 headers = {
@@ -27,19 +27,23 @@ days_abbr = {
 
 
 for cine in urls.keys():
+    # parse html and remove useless tags
     response = requests.get(urls[cine], headers=headers)
-
-    with open(f'html/{cine}.html', 'w', encoding='utf-8') as file:
-        file.write(response.text)
-    
     soup = BeautifulSoup(response.text, 'html.parser')
-    plain_text = soup.get_text(separator='\n', strip=True).lower() # convert to lowercase
-
-    for abbr, full in days_abbr.items(): # replace abbreviated days of the week with full names 
+    for tag in ["head", "footer", "nav", "script"]:
+        for element in soup.find_all(tag):
+            element.decompose()
+    
+    plain_text = soup.get_text(separator='\n', strip=True).lower()
+    
+    # replace abbreviations with full names
+    for abbr, full in days_abbr.items():
         plain_text = re.sub(r'\b' + re.escape(abbr) + r'\b', full.lower(), plain_text)
 
+    # save plain text to file
     with open(f'text/{cine}.txt', 'w', encoding='utf-8') as text_file:
         text_file.write(plain_text)
     
-    print(f"Scraped {cine} page.")
+    print(f"Scraped {cine}.")
+
 

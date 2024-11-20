@@ -40,17 +40,23 @@ def main():
     elif args.command == "query":
         if args.target_date == -1:
             for day in range(8):  # Query for all 7 days (0 to 7 inclusive)
-                target_date = (datetime.now() + timedelta(days=day)).strftime("%Y-%m-%d")
+                #target_date = (datetime.now() + timedelta(days=day)).strftime("%Y-%m-%d")
+                target_date = (datetime.now() + timedelta(days=day)).strftime("%d %B %Y")
                 results = query_screenings(target_date)
                 print(f"\nScreenings for {target_date}:")
                 for row in results:
-                    print(f"Cinema: {row[0]}, Title: {row[1]}, Date: {row[2]}, Times: {row[3]}")
+                    for row in results:
+                        print(f"Cinema: {row[0]}, Title: {row[1]}, Date: {row[2]}, Time: {row[3]}")
+
         else:
-            target_date = (datetime.now() + timedelta(days=args.target_date)).strftime("%Y-%m-%d")
+            #target_date = (datetime.now() + timedelta(days=args.target_date)).strftime("%Y-%m-%d")
+            target_date = (datetime.now() + timedelta(days=target_date)).strftime("%d %B %Y")
             results = query_screenings(target_date)
             print(f"\nScreenings for {target_date}:")
             for row in results:
-                print(f"Cinema: {row[0]}, Title: {row[1]}, Date: {row[2]}, Times: {row[3]}")
+                for row in results:
+                    print(f"Cinema: {row[0]}, Title: {row[1]}, Date: {row[2]}, Time: {row[3]}")
+
     else:
         parser.print_help()
 

@@ -8,21 +8,23 @@ def setup_database():
     cursor = conn.cursor()
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS screenings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         cinema TEXT NOT NULL,
         title TEXT NOT NULL,
         screening_date TEXT NOT NULL,
-        screening_times TEXT NOT NULL,
+        screening_time TEXT NOT NULL,
         original_title TEXT,
         director TEXT,
         year_of_release INTEGER,
         language TEXT,
         price TEXT,
         cast TEXT,
-        PRIMARY KEY (cinema, title, screening_date)
+        UNIQUE(cinema, title, screening_date, screening_time)
     );
     """)
     conn.commit()
     conn.close()
+
 
 def save_screenings_to_db(screenings):
     conn = sqlite3.connect(DB_PATH)
@@ -30,12 +32,11 @@ def save_screenings_to_db(screenings):
     for screening in screenings:
         cursor.execute("""
         INSERT INTO screenings (
-            cinema, title, screening_date, screening_times, original_title,
+            cinema, title, screening_date, screening_time, original_title,
             director, year_of_release, language, price, cast
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(cinema, title, screening_date) DO UPDATE SET
-            screening_times=excluded.screening_times,
+        ON CONFLICT(cinema, title, screening_date, screening_time) DO UPDATE SET
             original_title=excluded.original_title,
             director=excluded.director,
             year_of_release=excluded.year_of_release,
@@ -46,7 +47,7 @@ def save_screenings_to_db(screenings):
             screening["cinema"],
             screening["title"],
             screening["screening_date"],
-            ", ".join(screening["screening_times"]),
+            screening["screening_time"],
             screening.get("original_title"),
             screening.get("director"),
             screening.get("year_of_release"),
@@ -54,14 +55,14 @@ def save_screenings_to_db(screenings):
             screening.get("price"),
             ", ".join(screening.get("cast", []) if isinstance(screening.get("cast"), list) else [])
         ))
-    conn.commit()
-    conn.close()
+        print(f"Saved screening: {screening}")
+
 
 def query_screenings(target_date):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
-    SELECT cinema, title, screening_date, screening_times
+    SELECT cinema, title, screening_date, screening_time
     FROM screenings
     WHERE screening_date = ?;
     """, (target_date,))

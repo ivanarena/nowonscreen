@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import os
+import re
 
 CINEMA_URLS = {
     "phenomena": "https://www.phenomena-experience.com/programacion-peliculas/todas.html",
@@ -10,6 +11,15 @@ CINEMA_URLS = {
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36"
+}
+DAYS_ABBR = {
+    "lu": "Lunes",
+    "ma": "Martes",
+    "mi": "Miércoles",
+    "ju": "Jueves",
+    "vi": "Viernes",
+    "sa": "Sábado",
+    "do": "Domingo"
 }
 
 def scrape_cinema(cinemas, output_dir="text/"):
@@ -30,7 +40,12 @@ def scrape_cinema(cinemas, output_dir="text/"):
             for element in soup.find_all(tag):
                 element.decompose()
         
-        plain_text = soup.get_text(separator="\n", strip=True)
+        #plain_text = soup.get_text(separator="\n", strip=True)
+        plain_text = soup.get_text(separator='\n', strip=True).lower()
+
+        for abbr, full in DAYS_ABBR.items():
+            plain_text = re.sub(r'\b' + re.escape(abbr) + r'\b', full.lower(), plain_text)
+
         with open(os.path.join(output_dir, f"{cinema}.txt"), "w", encoding="utf-8") as file:
             file.write(plain_text)
         print(f"Scraped {cinema} successfully!")

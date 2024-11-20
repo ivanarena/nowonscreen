@@ -27,6 +27,7 @@ def setup_database():
 
 
 def save_screenings_to_db(screenings):
+    """Save screenings to the database, inserting or updating if already exists."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     for screening in screenings:
@@ -48,14 +49,17 @@ def save_screenings_to_db(screenings):
             screening["title"],
             screening["screening_date"],
             screening["screening_time"],
-            screening.get("original_title"),
-            screening.get("director"),
-            screening.get("year_of_release"),
-            screening.get("language"),
-            screening.get("price"),
+            screening.get("original_title", ""),
+            screening.get("director", ""),
+            screening.get("year_of_release", None),
+            screening.get("language", ""),
+            screening.get("price", ""),
             ", ".join(screening.get("cast", []) if isinstance(screening.get("cast"), list) else [])
         ))
-        print(f"Saved screening: {screening}")
+        print(f"Saved screening: {screening['title']} at {screening['cinema']} on {screening['screening_date']}")
+
+    conn.commit()
+    conn.close()
 
 
 def query_screenings(target_date):

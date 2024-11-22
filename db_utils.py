@@ -1,75 +1,96 @@
 import sqlite3
-from datetime import datetime, timedelta
-
-DB_PATH = "cinema_screenings.db"
+from datetime import datetime
 
 def setup_database():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS screenings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        cinema TEXT NOT NULL,
-        title TEXT NOT NULL,
-        screening_date TEXT NOT NULL,
-        screening_time TEXT NOT NULL,
-        original_title TEXT,
-        director TEXT,
-        year_of_release INTEGER,
-        language TEXT,
-        price TEXT,
-        cast TEXT,
-        UNIQUE(cinema, title, screening_date, screening_time)
-    );
-    """)
-    conn.commit()
-    conn.close()
+    """
+    Initialize the database and create the necessary table for storing film screenings.
+    """
+    connection = sqlite3.connect("cinema.db")
+    cursor = connection.cursor()
 
+    # Create table for screenings
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS screenings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cinema TEXT NOT NULL,
+            title TEXT NOT NULL,
+            original_title TEXT,
+            director TEXT,
+            year_of_release INTEGER,
+            screening_date TEXT NOT NULL,
+            screening_time TEXT NOT NULL,
+            language TEXT,
+            price TEXT,
+            cast TEXT
+        )
+        """
+    )
+
+    connection.commit()
+    connection.close()
 
 def save_screenings_to_db(screenings):
-    """Save screenings to the database, inserting or updating if already exists."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
+    """
+    Save a list of screenings to the database.
+
+    Parameters:
+        screenings (list): A list of dictionaries where each dictionary contains screening details.
+    """
+    connection = sqlite3.connect("cinema.db")
+    cursor = connection.cursor()
+
+    # Insert screenings into the database
     for screening in screenings:
-        cursor.execute("""
-        INSERT INTO screenings (
-            cinema, title, screening_date, screening_time, original_title,
-            director, year_of_release, language, price, cast
+        cursor.execute(
+            """
+            INSERT INTO screenings (
+                cinema, title, original_title, director, year_of_release, screening_date, 
+                screening_time, language, price, cast
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                screening["cinema"],
+                screening["title"],
+                screening.get("original_title"),
+                screening.get("director"),
+                screening.get("year_of_release"),
+                screening["screening_date"],
+                screening["screening_time"],
+                screening.get("language"),
+                screening.get("price"),
+                ", ".join(screening.get("cast", []) if isinstance(screening.get("cast"), list) else [])
+            )
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(cinema, title, screening_date, screening_time) DO UPDATE SET
-            original_title=excluded.original_title,
-            director=excluded.director,
-            year_of_release=excluded.year_of_release,
-            language=excluded.language,
-            price=excluded.price,
-            cast=excluded.cast;
-        """, (
-            screening["cinema"],
-            screening["title"],
-            screening["screening_date"],
-            screening["screening_time"],
-            screening.get("original_title", ""),
-            screening.get("director", ""),
-            screening.get("year_of_release", None),
-            screening.get("language", ""),
-            screening.get("price", ""),
-            ", ".join(screening.get("cast", []) if isinstance(screening.get("cast"), list) else [])
-        ))
-        print(f"Saved screening: {screening['title']} at {screening['cinema']} on {screening['screening_date']}")
 
-    conn.commit()
-    conn.close()
-
+    connection.commit()
+    connection.close()
 
 def query_screenings(target_date):
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("""
-    SELECT cinema, title, screening_date, screening_time
-    FROM screenings
-    WHERE screening_date = ?;
-    """, (target_date,))
+    """
+    Query screenings for a specific date.
+
+    Parameters:
+        target_date (str): The target date in the format "DD Month YYYY" (e.g., "22 November 2024").
+
+    Returns:
+        list: A list of tuples where each tuple represents a screening.
+    """
+    connection = sqlite3.connect("cinema.db")
+    cursor = connection.cursor()
+
+    # Query screenings for the given date
+    cursor.execute(
+        """
+        SELECT cinema, title, screening_date, screening_time
+        FROM screenings
+        WHERE screening_date = ?
+        ORDER BY cinema, screening_time
+        """,
+        (target_date,)
+    )
+
     results = cursor.fetchall()
-    conn.close()
+    connection.close()
+
     return results

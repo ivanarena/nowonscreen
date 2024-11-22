@@ -5,7 +5,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
-genai.configure(api_key="AIzaSyAC1jdMgX-vFz6Ox1MxbO11PQbKLV_FYRw")
+genai.configure(api_key="")
 
 context = """
     You are a linguist specialized in named entity recognition, with knowledge

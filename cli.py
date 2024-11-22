@@ -31,6 +31,7 @@ def main():
         if args.target_date == -1:
             for day in range(8):  # Process for all 7 days (0 to 7 inclusive)
                 screenings = process_scraped_data(args.cinemas, day)
+                print(f"Day {day} screenings: \n{screenings}")
                 save_screenings_to_db(screenings)
             print("Processed and saved screenings for the entire week.")
         else:
@@ -45,8 +46,7 @@ def main():
                 results = query_screenings(target_date)
                 print(f"\nScreenings for {target_date}:")
                 for row in results:
-                    for row in results:
-                        print(f"Cinema: {row[0]}, Title: {row[1]}, Date: {row[2]}, Time: {row[3]}")
+                    print(f"Cinema: {row[0]}, Title: {row[1]}, Date: {row[2]}, Time: {row[3]}")
 
         else:
             #target_date = (datetime.now() + timedelta(days=args.target_date)).strftime("%Y-%m-%d")
@@ -54,8 +54,7 @@ def main():
             results = query_screenings(target_date)
             print(f"\nScreenings for {target_date}:")
             for row in results:
-                for row in results:
-                    print(f"Cinema: {row[0]}, Title: {row[1]}, Date: {row[2]}, Time: {row[3]}")
+                print(f"Cinema: {row[0]}, Title: {row[1]}, Date: {row[2]}, Time: {row[3]}")
 
     else:
         parser.print_help()

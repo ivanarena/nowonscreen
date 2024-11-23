@@ -1,4 +1,5 @@
 import argparse
+import os
 from datetime import datetime, timedelta
 
 from db_utils import query_screenings, save_screenings_to_db, setup_database
@@ -50,9 +51,13 @@ def main():
     scrape_parser.add_argument(
         "--all", action="store_true", help="Scrape all available cinemas"
     )
+
     # Process command
     process_parser = subparsers.add_parser("process", help="Process scraped data")
-    process_parser.add_argument("cinemas", nargs="+", help="List of cinemas to process")
+    process_parser.add_argument("cinemas", nargs="*", help="List of cinemas to process")
+    process_parser.add_argument(
+        "--all", action="store_true", help="Process all available cinemas"
+    )
     process_parser.add_argument(
         "target_date",
         type=int,
@@ -88,7 +93,16 @@ def main():
         else:
             scrape_cinema(args.cinemas)
     elif args.command == "process":
-        process_cinemas(args.cinemas, args.target_date)
+        if args.all:
+            # Check for existing text files for all cinemas
+            cinemas_to_process = [
+                cinema
+                for cinema in CINEMA_URLS.keys()
+                if os.path.exists(os.path.join("text", f"{cinema}.txt"))
+            ]
+            process_cinemas(cinemas_to_process, args.target_date)
+        else:
+            process_cinemas(args.cinemas, args.target_date)
     elif args.command == "scrape_and_process":
         scrape_cinema(list(CINEMA_URLS.keys()))
         process_cinemas(list(CINEMA_URLS.keys()), args.target_date)

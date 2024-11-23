@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+
 
 def setup_database():
     """
@@ -30,6 +30,7 @@ def setup_database():
     connection.commit()
     connection.close()
 
+
 def save_screenings_to_db(screenings):
     """
     Save a list of screenings to the database.
@@ -59,12 +60,16 @@ def save_screenings_to_db(screenings):
                 screening["screening_time"],
                 screening.get("language"),
                 screening.get("price"),
-                ", ".join(screening.get("cast", []) if isinstance(screening.get("cast"), list) else [])
-            )
+                ", ".join(
+                    screening.get("cast", [])
+                    if isinstance(screening.get("cast"), list)
+                    else []
+                ),
+            ),
         )
-
     connection.commit()
     connection.close()
+
 
 def query_screenings(target_date):
     """
@@ -79,15 +84,14 @@ def query_screenings(target_date):
     connection = sqlite3.connect("cinema.db")
     cursor = connection.cursor()
 
-    # Query screenings for the given date
     cursor.execute(
         """
         SELECT cinema, title, screening_date, screening_time
         FROM screenings
         WHERE screening_date = ?
-        ORDER BY cinema, screening_time
+        ORDER BY screening_date, screening_time
         """,
-        (target_date,)
+        (target_date,),
     )
 
     results = cursor.fetchall()

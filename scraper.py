@@ -1,7 +1,8 @@
-import requests
-from bs4 import BeautifulSoup
 import os
 import re
+
+import requests
+from bs4 import BeautifulSoup
 
 CINEMA_URLS = {
     "phenomena": "https://www.phenomena-experience.com/programacion-peliculas/todas.html",
@@ -19,8 +20,9 @@ DAYS_ABBR = {
     "ju": "Jueves",
     "vi": "Viernes",
     "sa": "Sábado",
-    "do": "Domingo"
+    "do": "Domingo",
 }
+
 
 def scrape_cinema(cinemas, output_dir="text/"):
     """
@@ -31,21 +33,24 @@ def scrape_cinema(cinemas, output_dir="text/"):
         if cinema not in CINEMA_URLS:
             print(f"Unknown cinema: {cinema}")
             continue
-        
+
         print(f"Scraping {cinema}...")
         response = requests.get(CINEMA_URLS[cinema], headers=HEADERS)
         soup = BeautifulSoup(response.text, "html.parser")
-        
+
         for tag in ["head", "footer", "nav", "script"]:
             for element in soup.find_all(tag):
                 element.decompose()
-        
-        #plain_text = soup.get_text(separator="\n", strip=True)
-        plain_text = soup.get_text(separator='\n', strip=True).lower()
+
+        plain_text = soup.get_text(separator="\n", strip=True).lower()
 
         for abbr, full in DAYS_ABBR.items():
-            plain_text = re.sub(r'\b' + re.escape(abbr) + r'\b', full.lower(), plain_text)
+            plain_text = re.sub(
+                r"\b" + re.escape(abbr) + r"\b", full.lower(), plain_text
+            )
 
-        with open(os.path.join(output_dir, f"{cinema}.txt"), "w", encoding="utf-8") as file:
+        with open(
+            os.path.join(output_dir, f"{cinema}.txt"), "w", encoding="utf-8"
+        ) as file:
             file.write(plain_text)
         print(f"Scraped {cinema} successfully!")

@@ -55,29 +55,18 @@ def process_scraped_data(cinemas, target_date, input_dir="text/"):
         ```json
         [
             {{
-                "cinema": "phenomena",
+                "cinema": "cinema name",
                 "title": "Film Title",
                 "original_title": "Original Title",
                 "director": "Director Name",
-                "year_of_release": 1999,
-                "screening_date": "20 November 2024",
-                "screening_time": "18:00",
-                "language": "English",
-                "price": "€12",
+                "year_of_release": YYYY,
+                "screening_date": "DD MM YYYY",
+                "screening_time": "HH:MM",
+                "language": "Language",
+                "price": "€XX",
                 "cast": ["Actor A", "Actor B"]
             }},
-            {{
-                "cinema": "phenomena",
-                "title": "Film Title",
-                "original_title": "Original Title",
-                "director": "Director Name",
-                "year_of_release": 1999,
-                "screening_date": "20 November 2024",
-                "screening_time": "20:00",
-                "language": "English",
-                "price": "€12",
-                "cast": ["Actor A", "Actor B"]
-            }}
+            ...
         ]
         """
 
@@ -87,5 +76,8 @@ def process_scraped_data(cinemas, target_date, input_dir="text/"):
         screenings.extend(
             json.loads(result.text.replace("json", "").replace("```", ""))
         )
-
+        import time
+        time.sleep(5)
+    import pprint as pp
+    pp.pprint(screenings)
     return screenings

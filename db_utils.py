@@ -5,7 +5,7 @@ def setup_database():
     """
     Initialize the database and create the necessary table for storing film screenings.
     """
-    connection = sqlite3.connect("cinema.db")
+    connection = sqlite3.connect("screenings.db")
     cursor = connection.cursor()
 
     # Create table for screenings
@@ -22,7 +22,8 @@ def setup_database():
             screening_time TEXT NOT NULL,
             language TEXT,
             price TEXT,
-            cast TEXT
+            cast TEXT,
+            UNIQUE(cinema, title, screening_date, screening_time)
         )
         """
     )
@@ -38,7 +39,7 @@ def save_screenings_to_db(screenings):
     Parameters:
         screenings (list): A list of dictionaries where each dictionary contains screening details.
     """
-    connection = sqlite3.connect("cinema.db")
+    connection = sqlite3.connect("screenings.db")
     cursor = connection.cursor()
 
     # Insert screenings into the database
@@ -81,12 +82,12 @@ def query_screenings(target_date):
     Returns:
         list: A list of tuples where each tuple represents a screening.
     """
-    connection = sqlite3.connect("cinema.db")
+    connection = sqlite3.connect("screenings.db")
     cursor = connection.cursor()
 
     cursor.execute(
         """
-        SELECT cinema, title, screening_date, screening_time
+        SELECT screening_date, screening_time, title, cinema
         FROM screenings
         WHERE screening_date = ?
         ORDER BY screening_date, screening_time

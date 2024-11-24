@@ -174,3 +174,6 @@ pyrightconfig.json
 
 html/
 text/
+Makefile
+screenings.db
+notes.md

@@ -38,7 +38,7 @@ def query_screenings_by_date(target_date):
 def print_screenings(results, target_date_str):
     print(f"\nScreenings for {target_date_str}:")
     for row in results:
-        print(f"Cinema: {row[0]}, Title: {row[1]}, Date: {row[2]}, Time: {row[3]}")
+        print(f"{row[0]:<15}, {row[1]:<10} {row[2]:<50} at {row[3]:<20}")
 
 
 def main():

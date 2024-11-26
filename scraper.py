@@ -1,42 +1,45 @@
 import os
 import re
-
 import requests
 from bs4 import BeautifulSoup
+from config import CINEMA_URLS, HEADERS, DAYS_ABBR
+from datetime import datetime
 
-CINEMA_URLS = {
-    "phenomena": "https://www.phenomena-experience.com/programacion-peliculas/todas.html",
-    "malda": "https://www.cinemamalda.com/cartelera-dia-dia/",
-    "filmoteca": "https://www.filmoteca.cat/web/ca/view-agenda-setmanal",
-}
-
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36"
-}
-DAYS_ABBR = {
-    "lu": "Lunes",
-    "ma": "Martes",
-    "mi": "Miércoles",
-    "ju": "Jueves",
-    "vi": "Viernes",
-    "sa": "Sábado",
-    "do": "Domingo",
-}
-
-
-def scrape_cinema(cinemas, output_dir="text/"):
+def scrape(output_dir="text/"):
     """
     Scrape selected cinemas and save their plain text output.
     """
-    os.makedirs(output_dir, exist_ok=True)
-    for cinema in cinemas:
-        if cinema not in CINEMA_URLS:
-            print(f"Unknown cinema: {cinema}")
-            continue
+    current_week = datetime.now().isocalendar()[1]
+    do_scrape = False
+    for filename in os.listdir(output_dir):
+        file_path = os.path.join(output_dir, filename)
+        if os.path.isfile(file_path):
+            file_week = datetime.fromtimestamp(os.path.getmtime(file_path)).isocalendar()[1]
+            if file_week != current_week:
+                do_scrape = True
+                break
+        break
 
+    if not do_scrape:
+        return
+    
+    os.makedirs(output_dir, exist_ok=True)
+    for cinema in CINEMA_URLS:
         print(f"Scraping {cinema}...")
-        response = requests.get(CINEMA_URLS[cinema], headers=HEADERS)
-        soup = BeautifulSoup(response.text, "html.parser")
+        response = None
+        soup = None
+        for _ in range(3):
+            try:
+                response = requests.get(CINEMA_URLS[cinema], headers=HEADERS, timeout=5)
+                response.raise_for_status()
+                soup = BeautifulSoup(response.text, "html.parser")
+                break
+            except (requests.exceptions.RequestException, requests.exceptions.Timeout) as e:
+                print(f"Attempt failed: {e}")
+        
+        if response is None or soup is None:
+            print(f"Failed to scrape {cinema} after 3 attempts.")
+            continue
 
         for tag in ["head", "footer", "nav", "script"]:
             for element in soup.find_all(tag):

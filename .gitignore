@@ -177,3 +177,5 @@ text/
 Makefile
 screenings.db
 notes.md
+*.ipynb
+*.csv

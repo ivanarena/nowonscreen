@@ -9,12 +9,13 @@ def ner(input_dir="text/"):
     Process scraped text data using GenAI to extract screenings for a target date.
     """
     today = datetime.now()
+    current_week = today.isocalendar()[1]
     target_dates = [(today + timedelta(days=i)).strftime("%Y-%m-%d") for i in range((6 - today.weekday()) % 7 + 1)]
     screenings = []
     start = time.time()
     for date in target_dates:
         for cinema in CINEMAS:
-            file_path = os.path.join(input_dir, f"{cinema}.txt")
+            file_path = os.path.join(input_dir, f"{cinema}_w{current_week}.txt")
             if not os.path.exists(file_path):
                 print(f"No data found for {cinema}. Run the scraper first.")
                 continue
@@ -64,6 +65,7 @@ def ner(input_dir="text/"):
             )
             time.sleep(5) # Avoid rate limiting
             print(f"Extracted {len(screenings)-count} screenings for {date} at {cinema}.")
+        time.sleep(30) # Avoid rate limiting
     end = time.time()
     print(f"Extracted {len(screenings)} screenings in {end-start:.2f} seconds.")
     return screenings

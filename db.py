@@ -79,7 +79,7 @@ def insert(screenings):
     connection.close()
 
 
-def query(date=None, cinema=None):
+def query(date=None, cinema=None, full=False):
     """
     Query screenings for a specific date.
 
@@ -115,6 +115,11 @@ def query(date=None, cinema=None):
         SELECT screening_date, screening_time, title, cinema
         FROM screenings
     """
+    if full:
+        sql = """
+            SELECT *
+            FROM screenings
+        """
     if conditions:
         sql += " WHERE " + " AND ".join(conditions)
     sql += " ORDER BY screening_date, screening_time"

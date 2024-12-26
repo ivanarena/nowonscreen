@@ -3,7 +3,8 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+#genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+genai.configure(api_key="AIzaSyAC1jdMgX-vFz6Ox1MxbO11PQbKLV_FYRw")
 
 # llm 
 CONTEXT = """

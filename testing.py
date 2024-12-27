@@ -1,18 +1,22 @@
 import json
 import os
 import pandas as pd
-from config import CINEMAS, MODEL
+from config import MODEL
 from datetime import datetime, timedelta
 import time
 from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import random
-import numpy as np
 
 from llm import generate_prompt
 
-def fetch_examples(training_dataset_path, input_text, similarity_based=True):
+
+def fetch_examples(
+        training_dataset_path, 
+        input_text, 
+        similarity_based=True
+):
     """
     Fetch Example Input and Output from the training dataset.
     
@@ -50,7 +54,14 @@ def fetch_examples(training_dataset_path, input_text, similarity_based=True):
     
     return example_input, example_output
 
-def ner(file_path: str, cinema: str, training_dataset_path: str, mode="static", target_dates=None):
+
+def ner(
+        file_path: str, 
+        cinema: str, 
+        training_dataset_path: str, 
+        mode="static", 
+        target_dates=None
+):
     """
     Process scraped text data using GenAI to extract screenings for specified target dates.
 
@@ -89,8 +100,9 @@ def ner(file_path: str, cinema: str, training_dataset_path: str, mode="static", 
                 example_input, example_output = fetch_examples(training_dataset_path, text, False)
             elif mode == "similarity":
                 example_input, example_output = fetch_examples(training_dataset_path, text, True)
+            print(f"Example input: {example_input}")
+            print(f"Example output: {example_output}")
             prompt = generate_prompt(cinema, date, text, example_input, example_output, mode=mode)
-        
 
         result = MODEL.generate_content(prompt)
         count = len(screenings)
@@ -106,6 +118,7 @@ def ner(file_path: str, cinema: str, training_dataset_path: str, mode="static", 
     end = time.time()
     print(f"Extracted {len(screenings)} screenings in {end-start:.2f} seconds.")
     return screenings
+
 
 def compute_metrics(extracted, ground_truth, labels):
     """
@@ -141,6 +154,7 @@ def compute_metrics(extracted, ground_truth, labels):
             )
             extracted_value = (
                 str(extracted_indexed.get(key, {}).get(label, "")).lower()
+                if label != "cast" else ', '.join(extracted_indexed.get(key, {}).get(label, "")).lower()
             )
             
             ground_truth_value = ground_truth_value if ground_truth_value not in ["nan", "none"] else "nan"
@@ -159,7 +173,16 @@ def compute_metrics(extracted, ground_truth, labels):
 
     return results
 
-def evaluation(train_dataset_path: str, test_dataset_path: str, web_dir_path: str, web_filename: str, web_name: str, target_dates=None):
+
+def evaluation(
+        train_dataset_path: str, 
+        test_dataset_path: str, 
+        web_dir_path: str, 
+        web_filename: str, 
+        web_name: str, 
+        mode: str,
+        target_dates=None
+):
     """
     Evaluate the model by comparing extracted data with ground truth and computing metrics.
 
@@ -182,7 +205,8 @@ def evaluation(train_dataset_path: str, test_dataset_path: str, web_dir_path: st
     web_path = os.path.join(web_dir_path, web_filename)
 
     # Perform Named Entity Recognition (NER) to extract screenings
-    screenings = ner(web_path, web_name, train_dataset_path, target_dates=target_dates)
+    screenings = ner(web_path, web_name, train_dataset_path, 
+                     mode=mode, target_dates=target_dates)
 
     print("---SCREENINGS---")
     print(screenings)
@@ -204,5 +228,10 @@ def evaluation(train_dataset_path: str, test_dataset_path: str, web_dir_path: st
         print(f"  Recall: {scores['recall']:.2f}")
         print(f"  F1 Score: {scores['f1_score']:.2f}\n")
 
+
 custom_dates = ["25-12-2024", "26-12-2024", "27-12-2024", "28-12-2024", "29-12-2024", "30-12-2024", "31-12-2024"]
-evaluation('datasets/training_dataset.csv', 'datasets/testing_dataset_phenomena_24.csv', "text", "phenomena_24.txt", "phenomena", target_dates=custom_dates)
+mode = "random"
+evaluation('datasets/training_dataset.csv', 
+           'datasets/testing_dataset_phenomena_24.csv', 
+           "text", "phenomena_24.txt", "phenomena", 
+           mode=mode, target_dates=custom_dates)

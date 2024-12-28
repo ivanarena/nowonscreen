@@ -173,9 +173,8 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/python
 
 html/
-text/
 Makefile
 screenings.db
 notes.md
 *.ipynb
-*.csv
+extracted_screenings.csv

@@ -65,7 +65,7 @@ def generate_prompt(cinema, date, text, example_input=None, example_output=None,
     - "year_of_release": The year the film was released (if available).
     - "screening_date": The date of the screening (must be {date}).
     - "screening_time": The exact time of the screening (one time per object).
-    - "language": The language of the film (if available).
+    - "language": The language of the film (if available, VOE, VOSE, etc.).
     - "price": The price of the ticket (if available).
     - "cast": A list of main cast members (if available).
 

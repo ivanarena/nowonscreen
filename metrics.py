@@ -41,9 +41,9 @@ def compute_metrics(extracted_df, test_df):
     f1_score = 2 * (precision * recall) / (precision + recall)
     
     metrics = {
-        "precision": precision,
-        "recall": recall,
-        "f1_score": f1_score
+        "precision": round(precision, 3),
+        "recall": round(recall, 3),
+        "f1_score": round(f1_score, 3),
     }
 
     return metrics

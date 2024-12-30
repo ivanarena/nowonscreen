@@ -61,7 +61,7 @@ def insert(screenings):
                     datetime.strptime(screening["screening_date"], "%Y-%m-%d"),
                     screening["screening_time"].replace("h", ""), # sometimes the LLM would output "HH:MMh" instead of "HH:MM"
                     screening.get("language"),
-                    f"€{screening.get("price").replace('€', '')}" if screening.get("price") else None,
+                    f"€{screening.get('price').replace('€', '')}" if screening.get("price") else None,
                     ", ".join(
                         screening.get("cast", [])
                         if isinstance(screening.get("cast"), list)

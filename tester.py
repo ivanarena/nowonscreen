@@ -10,6 +10,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import random
 from llm import generate_prompt
 from metrics import compute_metrics
+import argparse
 
 
 def postprocess(extracted_df):
@@ -22,8 +23,8 @@ def postprocess(extracted_df):
             row["year_of_release"] = int(str(row["year_of_release"])[:4])
         if row["price"]:
             row["price"] = f"€{row['price'].replace('€', '')}"
-        if isinstance(row["cast"], list):
-            row["cast"] = ', '.join(row["cast"]).replace("'", "").replace("ʻ", "'").replace('"', "")
+        if row["cast"]:
+            row["cast"] = ', '.join(row["cast"]).replace("ʻ", "'").replace('"', "")
         else:
             row["cast"] = "nan"
         for field in row.index:
@@ -179,7 +180,7 @@ def evaluate(
     # Convert screenings to DataFrame
     screenings_df = pd.DataFrame(screenings)
     # screenings_df = pd.read_csv('extracted_screenings_test.csv') # only for debug
-    screenings_df.to_csv('extracted_screenings_test.csv', index=False)
+    # screenings_df.to_csv('extracted_screenings_test.csv', index=False)
     
     extracted_df = postprocess(screenings_df)
     extracted_df = normalize(extracted_df)
@@ -188,5 +189,10 @@ def evaluate(
     metrics = compute_metrics(extracted_df, test_df)
     print(metrics)
 
-mode = "static"
-evaluate(mode=mode)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run the evaluation script with specified mode.")
+    parser.add_argument('-m', '--mode', type=str, default="static", help='Mode of generating the prompt - "static", "random", "similarity".')
+    args = parser.parse_args()
+
+    evaluate(mode=args.mode)

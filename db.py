@@ -61,7 +61,7 @@ def insert(screenings):
                     datetime.strptime(screening["screening_date"], "%Y-%m-%d"),
                     screening["screening_time"].replace("h", ""), # sometimes the LLM would output "HH:MMh" instead of "HH:MM"
                     screening.get("language"),
-                    screening.get("price"),
+                    f"€{screening.get('price').replace('€', '')}" if screening.get("price") else None,
                     ", ".join(
                         screening.get("cast", [])
                         if isinstance(screening.get("cast"), list)
@@ -79,7 +79,7 @@ def insert(screenings):
     connection.close()
 
 
-def query(date=None, cinema=None):
+def query(date=None, cinema=None, full=False):
     """
     Query screenings for a specific date.
 
@@ -105,8 +105,7 @@ def query(date=None, cinema=None):
         sunday = today + timedelta(days=(6 - today.weekday()))
         conditions.append("screening_date BETWEEN ? AND ?")
         params.append(today.strftime("%Y-%m-%d"))
-        params.append(sunday.strftime("%Y-%m-%d"))
-
+        params.append((sunday + timedelta(days=1)).strftime("%Y-%m-%d"))
     if cinema:
         conditions.append("cinema = ?")
         params.append(cinema.title())
@@ -115,6 +114,11 @@ def query(date=None, cinema=None):
         SELECT screening_date, screening_time, title, cinema
         FROM screenings
     """
+    if full:
+        sql = """
+            SELECT *
+            FROM screenings
+        """
     if conditions:
         sql += " WHERE " + " AND ".join(conditions)
     sql += " ORDER BY screening_date, screening_time"

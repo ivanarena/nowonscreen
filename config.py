@@ -1,5 +1,5 @@
-import google.generativeai as genai
 import os
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,7 +19,7 @@ MODEL = genai.GenerativeModel(
 
 # scraper etc.
 CINEMA_URLS = {
-    "phenomena": "https://www.phenomena-experience.com/programacion-peliculas/todas.html",
+    "phenomena": "https://www.phenomena-experience.com/programacion-calendario/this-month.html",
     "malda": "https://www.cinemamalda.com/cartelera-dia-dia/",
     "filmoteca": "https://www.filmoteca.cat/web/ca/view-agenda-setmanal",
 }

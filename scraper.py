@@ -11,14 +11,16 @@ def scrape(output_dir="text/"):
     """
     current_week = datetime.now().isocalendar()[1]
     do_scrape = False
-    for filename in os.listdir(output_dir):
-        file_path = os.path.join(output_dir, filename)
-        if os.path.isfile(file_path):
-            file_week = datetime.fromtimestamp(os.path.getmtime(file_path)).isocalendar()[1]
-            if file_week != current_week:
-                do_scrape = True
-                break
-        break
+    if not os.listdir(output_dir):
+        do_scrape = True
+    else:
+        for filename in os.listdir(output_dir):
+            file_path = os.path.join(output_dir, filename)
+            if os.path.isfile(file_path):
+                file_week = datetime.fromtimestamp(os.path.getmtime(file_path)).isocalendar()[1]
+                if file_week != current_week:
+                    do_scrape = True
+                    break
 
     if not do_scrape:
         return
@@ -53,7 +55,7 @@ def scrape(output_dir="text/"):
             )
 
         with open(
-            os.path.join(output_dir, f"{cinema}.txt"), "w", encoding="utf-8"
+            os.path.join(output_dir, f"{cinema}_w{current_week}.txt"), "w", encoding="utf-8"
         ) as file:
             file.write(plain_text)
         print(f"Scraped {cinema} successfully!")

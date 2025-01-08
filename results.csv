@@ -1,0 +1,4 @@
+Method,Correctly identified fields,Total fields,Precision,Recall,F1-score
+Static,799,803,0.994,0.925,0.952
+Random,762,770,0.99,0.875,0.929
+Similarity,646,649,0.995,0.738,0.847

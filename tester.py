@@ -132,8 +132,6 @@ def ner(
                 example_input, example_output = fetch_examples(training_dataset_path, text, similarity_based=False)
             elif mode == "similarity":
                 example_input, example_output = fetch_examples(training_dataset_path, text, similarity_based=True)
-            # print(f"Example input: {example_input}")
-            # print(f"Example output: {example_output}")
             prompt = generate_prompt(cinema, date, text, example_input, example_output, mode=mode)
 
         result = MODEL.generate_content(prompt)
@@ -172,7 +170,7 @@ def evaluate(
     for _, row in filenames.iterrows():
         filename = row['filename']
         cinema = row['cinema']
-        input_examples = 'datasets/training_dataset.csv'
+        input_examples = 'examples.csv'
         print("Extracting screenings from", filename)
         screenings.extend(ner(os.path.join('text', filename), cinema, input_examples, mode=mode))
 

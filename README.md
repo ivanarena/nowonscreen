@@ -67,3 +67,23 @@ To get this week's screenings at Filmoteca de Catalunya:
 ```bash
 python3 nowonscreen.py -c filmoteca
 ```
+
+## Testing
+
+To run the tests run the following command from root:
+
+```bash
+python3 tester.py
+```
+
+You can also specify the modality of example selection for the dynamic prompt (`static`, `random`, `similarity`, default is `static`):
+
+```bash
+python3 tester.py -m random
+```
+
+or
+
+```bash
+python3 tester.py --mode random
+```

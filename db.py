@@ -105,8 +105,7 @@ def query(date=None, cinema=None, full=False):
         sunday = today + timedelta(days=(6 - today.weekday()))
         conditions.append("screening_date BETWEEN ? AND ?")
         params.append(today.strftime("%Y-%m-%d"))
-        params.append(sunday.strftime("%Y-%m-%d"))
-
+        params.append((sunday + timedelta(days=1)).strftime("%Y-%m-%d"))
     if cinema:
         conditions.append("cinema = ?")
         params.append(cinema.title())
